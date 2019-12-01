@@ -10,9 +10,9 @@ using namespace std;
 void printHelp();
 void printInventory(vector<Item*> *inventory);
 void printRoomDescription(Room *currentRoom);
-Room* goRoom(Room* currentRoom, char []secondWord);
-void getItem(vector<Item*> *inventory, char []secondWord);
-void dropItem(vector<Item*> *inventory, char []secondWord);
+void goRoom(Room* currentRoom, char* secondWord);
+void getItem(vector<Item*> *inventory, char* secondWord);
+void dropItem(vector<Item*> *inventory, char* secondWord, Room* currentRoom);
 vector<Room*>* createRooms(vector<Room*> *rooms);
 void addRoom(Room* newRoom, vector<Room*> *rooms);
 
@@ -28,7 +28,7 @@ int main() {
     bool first = true;
 
 	cout << "Welcome to Zuul, a text-based adventure game.";
-    cout << " The objective of this game is to write a working program ";
+    cout << " The objective of this game is to write a working C++ program ";
     cout << "and turn it in on time. There is a total number of moves ";
     cout << "allowed before the deadline, so choose wisely!" << endl;
 	cout << "Type HELP to view commands." << endl;
@@ -56,6 +56,7 @@ int main() {
             for (int i = 0; i < strlen(input); i++) {
                 if (isspace(input[i])) {
                     first = false;
+                    firstWord[i] = '\0';
                 }
                 if (first) {
                     firstWord[i] = input[i];
@@ -64,19 +65,18 @@ int main() {
                     secondWord[pos] = input[i];
                     pos++;
                 }
-            }
-            firstWord[strlen(firstWord) + 1] = '\0';
-            secondWord[strlen(secondWord) + 1] = '\0'; 
+            } 
+            secondWord[pos] = '\0';
             if (strcmp(firstWord, "GO") == 0) {
-                currentRoom = goRoom(currentRoom, secondWord);
+                goRoom(currentRoom, secondWord);
                 if (strcmp(currentRoom -> getName(), "1-20")) {
                     vector<Item*>::iterator it;
                     for(it = inventory -> begin(); it < inventory -> end(); it++) {
-                        if(strcmp(it -> getName(), "Working Program") == 0) {
+                        if(strcmp((*it) -> getName(), "Working Program") == 0) {
                             cout << "You got the project in on time and got awarded full points! You win!" << endl;
                             running = false;
                         }
-                        else if(strcmp(it -> getName(), "Buggy Program") == 0) {
+                        else if(strcmp((*it) -> getName(), "Buggy Program") == 0) {
                             cout << "You got the project in on time but did not get any points because your program did not compile. You lose." << endl;
                             running = false;
                         }
@@ -90,7 +90,7 @@ int main() {
                 getItem(inventory, secondWord);
             }
             else if (strcmp(firstWord, "DROP") == 0) {
-                dropItem(inventory, secondWord);
+                dropItem(inventory, secondWord, currentRoom);
             }
             else {
                 cout << "Command not found. Type HELP to view commands." << endl;
@@ -155,7 +155,7 @@ vector<Room*>* createRooms(vector<Room*> *rooms) {
 
     schoolEntrance -> addExit("West", garage);
     schoolEntrance -> addExit("North", scienceHall);
-    schoolEntrance -> addExit("East", schoolHallway);
+    schoolEntrance -> addExit("South", schoolHallway);
 
     scienceHall -> addExit("South", schoolEntrance);
     scienceHall -> addExit("North", physics);
@@ -164,9 +164,9 @@ vector<Room*>* createRooms(vector<Room*> *rooms) {
 
     compSciRoom -> addExit("West", schoolHallway);
 
-    schoolHallway -> addExit("West", schoolEntrance);
+    schoolHallway -> addExit("West", library);
     schoolHallway -> addExit("East", compSciRoom);
-    schoolHallway -> addExit("North", library);
+    schoolHallway -> addExit("North", schoolEntrance);
     schoolHallway -> addExit("South", weswigLab);
 
     weswigLab -> addExit("North", schoolHallway);
@@ -178,6 +178,18 @@ vector<Room*>* createRooms(vector<Room*> *rooms) {
     chem -> addExit("West", scienceHall);
     
     bio -> addExit("East", scienceHall);
+
+    office -> addItem("Good Advice");
+
+    livingRoom -> addItem("Bad Advice");
+
+    bedroom -> addItem("Java Advice");
+
+    bio -> addItem("Stack Overflow URL");
+
+    physics -> addItem("Stack Overflow URL");
+
+    chem -> addItem("Stack Overflow URL");
 
     return rooms;
 }
@@ -204,5 +216,59 @@ void printInventory(vector<Item*> *inventory) {
     }
 }
 
-Room* goRoom(Room* currentRoom, char []secondWord) {
-    if(currentRoom -> find(secondWord) == currentRoom -> end()) 
+void getItem(vector<Item*>* inventory, char* secondWord) {
+    
+
+}
+
+void dropItem(vector<Item*>* inventory, char* secondWord, Room* currentRoom) {
+
+}
+
+void goRoom(Room* currentRoom, char* secondWord) {
+    currentRoom -> getNewRoom(secondWord, currentRoom);
+    printRoomDescription(currentRoom);
+    if(strcmp(currentRoom -> getName(), "Bedroom") == 0) {
+       cout << "Your dad tells you he can try to help you, but he warns ";
+       cout << "you that he only REALLY knows how to code in Java." << endl;
+    }
+    else if(strcmp(currentRoom -> getName(), "Office") == 0) {
+       cout << "Your mom says that she would be happy to help and looks ";
+       cout << "over the assignment." << endl;
+    }
+    else if(strcmp(currentRoom -> getName(), "Living Room") == 0) {
+       cout << "Your brother says that he doesn't remember what he did ";
+       cout << "for this assignment and gives some vague directions." << endl;
+    }
+    else if(strcmp(currentRoom -> getName(), "Physics Classroom") == 0 || strcmp(currentRoom -> getName(), "Chemistry Lab") == 0 || strcmp(currentRoom -> getName(), "Biology Classroom") == 0) {
+        cout << "The people in the classroom suggest that you take a look ";
+        cout << "at the website Stack Overflow for help." << endl;
+    }
+    else if(strcmp(currentRoom -> getName(), "Library") == 0) {
+        vector<Item*>::iterator it;
+        for(it = inventory -> begin(); it < inventory -> end(); it++) {
+            if (strcmp((*it)->getName(), "Good Advice") == 0 || strcmp((*it)->getName(), "Stack Overflow URL") == 0) {
+                cout << "With your newly obtained knowledge, ";
+                cout << "you are now able to write your code." << endl;
+                library -> addItem("Working Program");
+                currentRoom -> printItems();
+            }
+            else if (strcmp((*it)->getName(), "Bad Advice") == 0 || strcmp((*it)->getName(), "Java Advice") == 0) {
+                cout << "Using the advice of your sketchy helpers ";
+                cout << "you write a questionable piece of code." << endl;
+                library -> addItem("Buggy Program");
+                currentRoom -> printItems();
+            }
+            else {
+                cout << "This would be a good place to write your code ";
+                cout << "once you get some help." << endl;
+            }
+        }
+    }
+}
+
+void printRoomDescription(Room* currentRoom) {
+    cout << currentRoom -> getDescription() << endl;
+    currentRoom -> printItems();
+    currentRoom -> printExits();
+}

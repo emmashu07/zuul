@@ -14,10 +14,12 @@ class Room {
 		char* getName();
 		char* getDescription();
         void addExit(char* name, Room* room);
-        Room* getExit(char []direction);
-        void addItem(Item* item);
+        void getNewRoom(char* direction, Room* currentRoom);
+        void addItem(char* name);
         void removeItem(Item* item);
-        vector<Item*>* getItems();
+        vector<Item*> getItems();
+        void printItems();
+        void printExits();
 	private:
 		char* name;
 		char* description;

@@ -38,7 +38,6 @@ void Room::removeItem(Item* item) {
     vector<Item*>::iterator it;
     for(it = items.begin(); it < items.end(); it++) {
         if(strcmp((*it) -> getName(), item -> getName()) == 0) {
-            delete (*it);
             items.erase(it);
         }
     }

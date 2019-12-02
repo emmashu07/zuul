@@ -87,10 +87,7 @@ int main() {
                         else if(strcmp((*it) -> getName(), "BuggyProgram") == 0) {
                             cout << "You got the project in on time but did not get any points because your program did not compile. You lose." << endl;
                             running = false;
-                        }
-                        else {
-                            cout << "Once you have a program, you should come here to turn it in." << endl;
-                        }
+                        } 
                     }
                 }
             }
@@ -179,7 +176,7 @@ vector<Room*>* createRooms(vector<Room*> *rooms) {
 
     weswigLab -> addExit("NORTH", schoolHallway);
 
-    library -> addExit("SOUTH", schoolHallway);
+    library -> addExit("EAST", schoolHallway);
 
     physics -> addExit("SOUTH", scienceHall);
 
@@ -232,12 +229,15 @@ void getItem(vector<Item*>* &inventory, char* secondWord, Room* &currentRoom) {
     for(it = itemsInRoom.begin(); it < itemsInRoom.end(); it++) {
         char* original = (*it) -> getName();
         char* newName = new char[20];
-        for (int i = 0; i < strlen(original); i++) {
+        int i = 0;
+        for (; i < strlen(original); i++) {
             newName[i] = toupper(original[i]);
-        } 
+        }
+        newName[i] = '\0'; 
         if(strcmp(secondWord, newName) == 0) {
             inRoom = true;
             item = (*it);
+            break;
         }
     }
     if(!inRoom) {
@@ -250,7 +250,31 @@ void getItem(vector<Item*>* &inventory, char* secondWord, Room* &currentRoom) {
 }
 
 void dropItem(vector<Item*>* &inventory, char* secondWord, Room* &currentRoom) {
-
+    vector<Item*> itemsInRoom = currentRoom -> getItems();
+    vector<Item*>::iterator it;
+    bool inInventory = false;
+    Item* item;
+    for(it = inventory -> begin(); it < inventory -> end(); it++) {
+        char* original = (*it) -> getName();
+        char* newName = new char[20];
+        int i = 0;
+        for (; i < strlen(original); i++) {
+            newName[i] = toupper(original[i]);
+        }
+        newName[i] = '\0';
+        if(strcmp(secondWord, newName) == 0) {
+            inInventory = true;
+            inventory -> erase(it);
+            item = (*it);
+            break;
+        }
+    }
+    if(!inInventory) {
+        cout << "The object is not in your inventory!" << endl;
+    }
+    else {
+        currentRoom -> addItem(item -> getName());
+    }
 }
 
 Room* goRoom(Room* currentRoom, char* secondWord, vector<Item*> *inventory, Room* library) {

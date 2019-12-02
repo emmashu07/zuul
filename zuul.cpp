@@ -10,8 +10,8 @@ using namespace std;
 void printHelp();
 void printInventory(vector<Item*> *inventory);
 void printRoomDescription(Room *currentRoom);
-void goRoom(Room* currentRoom, char* secondWord);
-void getItem(vector<Item*> *inventory, char* secondWord);
+void goRoom(Room* currentRoom, char* secondWord, vector<Item*> *inventory, Room* library);
+void getItem(vector<Item*> *inventory, char* secondWord, Room* currentRoom);
 void dropItem(vector<Item*> *inventory, char* secondWord, Room* currentRoom);
 vector<Room*>* createRooms(vector<Room*> *rooms);
 void addRoom(Room* newRoom, vector<Room*> *rooms);
@@ -23,9 +23,10 @@ int main() {
     char firstWord[10];
     char secondWord[20];
     bool running = true;
+    const int MAX_MOVES = 10;
     Room* currentRoom;
+    Room* library;
     int numOfMoves = 0;
-    bool first = true;
 
 	cout << "Welcome to Zuul, a text-based adventure game.";
     cout << " The objective of this game is to write a working C++ program ";
@@ -52,6 +53,7 @@ int main() {
             running = false;
         }
         else {
+            bool first = true;
             int pos = 0;
             for (int i = 0; i < strlen(input); i++) {
                 if (isspace(input[i])) {
@@ -68,15 +70,21 @@ int main() {
             } 
             secondWord[pos] = '\0';
             if (strcmp(firstWord, "GO") == 0) {
-                goRoom(currentRoom, secondWord);
+                vector<Room*>::iterator it;
+                for(it = rooms -> begin(); it < rooms -> end(); it++) {
+                    if(strcmp((*it) -> getName(), "Library") == 0) {
+                        library = (*it);
+                    }
+                }
+                goRoom(currentRoom, secondWord, inventory, library);
                 if (strcmp(currentRoom -> getName(), "1-20")) {
                     vector<Item*>::iterator it;
                     for(it = inventory -> begin(); it < inventory -> end(); it++) {
-                        if(strcmp((*it) -> getName(), "Working Program") == 0) {
+                        if(strcmp((*it) -> getName(), "WorkingProgram") == 0) {
                             cout << "You got the project in on time and got awarded full points! You win!" << endl;
                             running = false;
                         }
-                        else if(strcmp((*it) -> getName(), "Buggy Program") == 0) {
+                        else if(strcmp((*it) -> getName(), "BuggyProgram") == 0) {
                             cout << "You got the project in on time but did not get any points because your program did not compile. You lose." << endl;
                             running = false;
                         }
@@ -87,7 +95,7 @@ int main() {
                 }
             }
             else if (strcmp(firstWord, "GET") == 0) {
-                getItem(inventory, secondWord);
+                getItem(inventory, secondWord, currentRoom);
             }
             else if (strcmp(firstWord, "DROP") == 0) {
                 dropItem(inventory, secondWord, currentRoom);
@@ -96,10 +104,10 @@ int main() {
                 cout << "Command not found. Type HELP to view commands." << endl;
             }            
         }
-        if(numOfMoves > 10) {
+        /*if(numOfMoves > MAX_MOVES) {
             cout << "The deadline has passed, you did not get your project in on time. You lose." << endl;
             running = false;
-        }
+        }*/
     }
  	return 0;
 }
@@ -136,60 +144,60 @@ vector<Room*>* createRooms(vector<Room*> *rooms) {
     Room* schoolHallway = new Room("1 Hall", "A large hall at school");
     addRoom(schoolHallway, rooms);
 
-    yourRoom -> addExit("South", hallway);
-    yourRoom -> addExit("West", bedroom);
+    yourRoom -> addExit("SOUTH", hallway);
+    yourRoom -> addExit("WEST", bedroom);
     
-    hallway -> addExit("North", yourRoom);
-    hallway -> addExit("South", garage);
-    hallway -> addExit("West", livingRoom);
-    hallway -> addExit("East", office);
+    hallway -> addExit("NORTH", yourRoom);
+    hallway -> addExit("SOUTH", garage);
+    hallway -> addExit("WEST", livingRoom);
+    hallway -> addExit("EAST", office);
 
-    bedroom -> addExit("East", yourRoom);
+    bedroom -> addExit("EAST", yourRoom);
     
-    garage -> addExit("North", hallway);
-    garage -> addExit("East", schoolEntrance);
+    garage -> addExit("NORTH", hallway);
+    garage -> addExit("EAST", schoolEntrance);
 
-    livingRoom -> addExit("East", hallway);
+    livingRoom -> addExit("EAST", hallway);
     
-    office -> addExit("West", hallway);
+    office -> addExit("WEST", hallway);
 
-    schoolEntrance -> addExit("West", garage);
-    schoolEntrance -> addExit("North", scienceHall);
-    schoolEntrance -> addExit("South", schoolHallway);
+    schoolEntrance -> addExit("WEST", garage);
+    schoolEntrance -> addExit("NORTH", scienceHall);
+    schoolEntrance -> addExit("SOUTH", schoolHallway);
 
-    scienceHall -> addExit("South", schoolEntrance);
-    scienceHall -> addExit("North", physics);
-    scienceHall -> addExit("East", chem);
-    scienceHall -> addExit("West", bio);
+    scienceHall -> addExit("SOUTH", schoolEntrance);
+    scienceHall -> addExit("NORTH", physics);
+    scienceHall -> addExit("EAST", chem);
+    scienceHall -> addExit("WEST", bio);
 
-    compSciRoom -> addExit("West", schoolHallway);
+    compSciRoom -> addExit("WEST", schoolHallway);
 
-    schoolHallway -> addExit("West", library);
-    schoolHallway -> addExit("East", compSciRoom);
-    schoolHallway -> addExit("North", schoolEntrance);
-    schoolHallway -> addExit("South", weswigLab);
+    schoolHallway -> addExit("WEST", library);
+    schoolHallway -> addExit("EAST", compSciRoom);
+    schoolHallway -> addExit("NORTH", schoolEntrance);
+    schoolHallway -> addExit("SOUTH", weswigLab);
 
-    weswigLab -> addExit("North", schoolHallway);
+    weswigLab -> addExit("NORTH", schoolHallway);
 
-    library -> addExit("South", schoolHallway);
+    library -> addExit("SOUTH", schoolHallway);
 
-    physics -> addExit("South", scienceHall);
+    physics -> addExit("SOUTH", scienceHall);
 
-    chem -> addExit("West", scienceHall);
+    chem -> addExit("WEST", scienceHall);
     
-    bio -> addExit("East", scienceHall);
+    bio -> addExit("EAST", scienceHall);
 
-    office -> addItem("Good Advice");
+    office -> addItem("GoodAdvice");
 
-    livingRoom -> addItem("Bad Advice");
+    livingRoom -> addItem("BadAdvice");
 
-    bedroom -> addItem("Java Advice");
+    bedroom -> addItem("JavaAdvice");
 
-    bio -> addItem("Stack Overflow URL");
+    bio -> addItem("URL");
 
-    physics -> addItem("Stack Overflow URL");
+    physics -> addItem("URL");
 
-    chem -> addItem("Stack Overflow URL");
+    chem -> addItem("URL");
 
     return rooms;
 }
@@ -216,17 +224,40 @@ void printInventory(vector<Item*> *inventory) {
     }
 }
 
-void getItem(vector<Item*>* inventory, char* secondWord) {
-    
-
+void getItem(vector<Item*>* inventory, char* secondWord, Room* currentRoom) {
+    vector<Item*> itemsInRoom = currentRoom -> getItems();
+    vector<Item*>::iterator it;
+    bool inRoom = false;
+    Item* item;
+    char* itemName;
+    for(int i = 0; i < strlen(secondWord); i++) {
+        itemName[i] = toupper(secondWord[i]);
+    }
+    for(it = itemsInRoom.begin(); it < itemsInRoom.end(); it++) {
+        if(strcmp(itemName, secondWord) == 0) {
+            inRoom = true;
+            item = (*it);
+        }
+    }
+    if(!inRoom) {
+        cout << "The object is not in the room!" << endl;
+    }
+    else {
+        inventory -> push_back(item);
+        currentRoom -> removeItem(item);
+    }
 }
 
 void dropItem(vector<Item*>* inventory, char* secondWord, Room* currentRoom) {
 
 }
 
-void goRoom(Room* currentRoom, char* secondWord) {
-    currentRoom -> getNewRoom(secondWord, currentRoom);
+void goRoom(Room* currentRoom, char* secondWord, vector<Item*> *inventory, Room* library) {
+    Room* temp;
+    temp = currentRoom -> getNewRoom(secondWord);
+    if (temp != NULL) {
+        currentRoom = temp; 
+    } 
     printRoomDescription(currentRoom);
     if(strcmp(currentRoom -> getName(), "Bedroom") == 0) {
        cout << "Your dad tells you he can try to help you, but he warns ";
@@ -247,16 +278,16 @@ void goRoom(Room* currentRoom, char* secondWord) {
     else if(strcmp(currentRoom -> getName(), "Library") == 0) {
         vector<Item*>::iterator it;
         for(it = inventory -> begin(); it < inventory -> end(); it++) {
-            if (strcmp((*it)->getName(), "Good Advice") == 0 || strcmp((*it)->getName(), "Stack Overflow URL") == 0) {
+            if (strcmp((*it)->getName(), "GoodAdvice") == 0 || strcmp((*it)->getName(), "URL") == 0) {
                 cout << "With your newly obtained knowledge, ";
                 cout << "you are now able to write your code." << endl;
-                library -> addItem("Working Program");
+                library -> addItem("WorkingProgram");
                 currentRoom -> printItems();
             }
-            else if (strcmp((*it)->getName(), "Bad Advice") == 0 || strcmp((*it)->getName(), "Java Advice") == 0) {
+            else if (strcmp((*it)->getName(), "BadAdvice") == 0 || strcmp((*it)->getName(), "JavaAdvice") == 0) {
                 cout << "Using the advice of your sketchy helpers ";
                 cout << "you write a questionable piece of code." << endl;
-                library -> addItem("Buggy Program");
+                library -> addItem("BuggyProgram");
                 currentRoom -> printItems();
             }
             else {

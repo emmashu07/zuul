@@ -3,6 +3,7 @@
 #include <vector>
 #include "room.h"
 #include <cstring>
+#include <cctype>
 
 using namespace std;
 
@@ -47,13 +48,21 @@ vector<Item*> Room::getItems() {
     return items;
 }
 
-void Room::getNewRoom(char* direction, Room* currentRoom) {
-    if(exits.find(direction) == exits.end()) {
+Room* Room::getNewRoom(char* direction) {
+    /*if(exits.find(direction) == exits.end()) {
+        cout << direction << endl;
         cout << "There is no exit!" << endl;
+        return NULL;
     }
     else {
-        currentRoom = exits.find(direction)->second;
+        return exits.find(direction)->second;
+    }*/
+    for(auto it = exits.begin(); it != exits.end(); ++it) {
+        if(strcmp(it->first,direction) == 0) {
+            return it->second;
+        }
     }
+    return NULL;
 }
 
 void Room::printItems() {
@@ -62,12 +71,14 @@ void Room::printItems() {
     for (it = items.begin(); it < items.end(); it++) {
         cout << (*it) -> getName() << " ";
     }
+    cout << endl;
 }
 
 void Room::printExits() {
     cout << "Exits in the room: ";
     map<char*, Room*>:: iterator it;
     for (it = exits.begin(); it != exits.end(); it++) {
-        cout << it->first << " " << endl;
+        cout << it->first << " ";
     }
+    cout << endl;
 }

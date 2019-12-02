@@ -62,6 +62,7 @@ Room* Room::getNewRoom(char* direction) {
             return it->second;
         }
     }
+    cout << "There is no exit!" << endl;
     return NULL;
 }
 

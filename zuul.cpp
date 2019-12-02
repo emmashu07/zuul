@@ -10,9 +10,9 @@ using namespace std;
 void printHelp();
 void printInventory(vector<Item*> *inventory);
 void printRoomDescription(Room *currentRoom);
-void goRoom(Room* currentRoom, char* secondWord, vector<Item*> *inventory, Room* library);
-void getItem(vector<Item*> *inventory, char* secondWord, Room* currentRoom);
-void dropItem(vector<Item*> *inventory, char* secondWord, Room* currentRoom);
+Room* goRoom(Room* currentRoom, char* secondWord, vector<Item*> *inventory, Room* library);
+void getItem(vector<Item*>* &inventory, char* secondWord, Room* &currentRoom);
+void dropItem(vector<Item*>* &inventory, char* secondWord, Room* &currentRoom);
 vector<Room*>* createRooms(vector<Room*> *rooms);
 void addRoom(Room* newRoom, vector<Room*> *rooms);
 
@@ -76,7 +76,7 @@ int main() {
                         library = (*it);
                     }
                 }
-                goRoom(currentRoom, secondWord, inventory, library);
+                currentRoom = goRoom(currentRoom, secondWord, inventory, library);
                 if (strcmp(currentRoom -> getName(), "1-20")) {
                     vector<Item*>::iterator it;
                     for(it = inventory -> begin(); it < inventory -> end(); it++) {
@@ -224,17 +224,18 @@ void printInventory(vector<Item*> *inventory) {
     }
 }
 
-void getItem(vector<Item*>* inventory, char* secondWord, Room* currentRoom) {
+void getItem(vector<Item*>* &inventory, char* secondWord, Room* &currentRoom) {
     vector<Item*> itemsInRoom = currentRoom -> getItems();
     vector<Item*>::iterator it;
     bool inRoom = false;
     Item* item;
-    char* itemName;
-    for(int i = 0; i < strlen(secondWord); i++) {
-        itemName[i] = toupper(secondWord[i]);
-    }
     for(it = itemsInRoom.begin(); it < itemsInRoom.end(); it++) {
-        if(strcmp(itemName, secondWord) == 0) {
+        char* original = (*it) -> getName();
+        char* newName = new char[20];
+        for (int i = 0; i < strlen(original); i++) {
+            newName[i] = toupper(original[i]);
+        } 
+        if(strcmp(secondWord, newName) == 0) {
             inRoom = true;
             item = (*it);
         }
@@ -248,11 +249,11 @@ void getItem(vector<Item*>* inventory, char* secondWord, Room* currentRoom) {
     }
 }
 
-void dropItem(vector<Item*>* inventory, char* secondWord, Room* currentRoom) {
+void dropItem(vector<Item*>* &inventory, char* secondWord, Room* &currentRoom) {
 
 }
 
-void goRoom(Room* currentRoom, char* secondWord, vector<Item*> *inventory, Room* library) {
+Room* goRoom(Room* currentRoom, char* secondWord, vector<Item*> *inventory, Room* library) {
     Room* temp;
     temp = currentRoom -> getNewRoom(secondWord);
     if (temp != NULL) {
@@ -296,6 +297,7 @@ void goRoom(Room* currentRoom, char* secondWord, vector<Item*> *inventory, Room*
             }
         }
     }
+    return currentRoom;
 }
 
 void printRoomDescription(Room* currentRoom) {

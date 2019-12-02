@@ -14,7 +14,7 @@ class Room {
 		char* getName();
 		char* getDescription();
         void addExit(char* name, Room* room);
-        void getNewRoom(char* direction, Room* currentRoom);
+        Room* getNewRoom(char* direction);
         void addItem(char* name);
         void removeItem(Item* item);
         vector<Item*> getItems();

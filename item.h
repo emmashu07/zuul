@@ -1,3 +1,7 @@
+/*
+ * Emma Shu, 12/2/2019: Item class stores names.
+ */
+
 #pragma once
 #include <iostream>
 

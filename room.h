@@ -1,3 +1,9 @@
+/*
+ * Emma Shu, 12/2/2019: Room class has a map with all of the exits,
+ * a vector with all the items (has-a relationship with items), a name, 
+ * and a description.
+ */
+
 #pragma once
 #include <iostream>
 #include <vector>

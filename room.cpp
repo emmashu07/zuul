@@ -13,8 +13,11 @@ Room::Room(char* name, char* description) {
 }
 
 Room::~Room() {
-	delete []name;
-	delete []description;
+	//delete []name;
+	//delete []description;
+    for (auto it = items.begin(); it < items.end(); it++) {
+        delete (*it);
+    }
 }
 
 char* Room::getName() {
@@ -82,3 +85,4 @@ void Room::printExits() {
     }
     cout << endl;
 }
+

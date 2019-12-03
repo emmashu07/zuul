@@ -10,11 +10,12 @@ using namespace std;
 void printHelp();
 void printInventory(vector<Item*> *inventory);
 void printRoomDescription(Room *currentRoom);
-Room* goRoom(Room* currentRoom, char* secondWord, vector<Item*> *inventory, Room* library);
+Room* goRoom(Room* currentRoom, char* secondWord, vector<Item*> *inventory, Room* library, int &numOfMoves);
 void getItem(vector<Item*>* &inventory, char* secondWord, Room* &currentRoom);
 void dropItem(vector<Item*>* &inventory, char* secondWord, Room* &currentRoom);
 vector<Room*>* createRooms(vector<Room*> *rooms);
 void addRoom(Room* newRoom, vector<Room*> *rooms);
+void releaseMemory(vector<Item*>* inventory, vector<Room*>* rooms);
 
 int main() {
 	vector<Room*> *rooms = new vector<Room*>();
@@ -23,7 +24,7 @@ int main() {
     char firstWord[10];
     char secondWord[20];
     bool running = true;
-    const int MAX_MOVES = 10;
+    const int MAX_MOVES = 25;
     Room* currentRoom;
     Room* library;
     int numOfMoves = 0;
@@ -76,13 +77,14 @@ int main() {
                         library = (*it);
                     }
                 }
-                currentRoom = goRoom(currentRoom, secondWord, inventory, library);
-                if (strcmp(currentRoom -> getName(), "1-20")) {
+                currentRoom = goRoom(currentRoom, secondWord, inventory, library, numOfMoves);
+                if (strcmp(currentRoom -> getName(), "1-20") == 0) {
                     vector<Item*>::iterator it;
                     for(it = inventory -> begin(); it < inventory -> end(); it++) {
                         if(strcmp((*it) -> getName(), "WorkingProgram") == 0) {
                             cout << "You got the project in on time and got awarded full points! You win!" << endl;
                             running = false;
+                            break;
                         }
                         else if(strcmp((*it) -> getName(), "BuggyProgram") == 0) {
                             cout << "You got the project in on time but did not get any points because your program did not compile. You lose." << endl;
@@ -101,11 +103,12 @@ int main() {
                 cout << "Command not found. Type HELP to view commands." << endl;
             }            
         }
-        /*if(numOfMoves > MAX_MOVES) {
+        if(numOfMoves > MAX_MOVES) {
             cout << "The deadline has passed, you did not get your project in on time. You lose." << endl;
             running = false;
-        }*/
+        }
     }
+    releaseMemory(inventory, rooms);
  	return 0;
 }
 
@@ -122,7 +125,7 @@ vector<Room*>* createRooms(vector<Room*> *rooms) {
     addRoom(garage, rooms);
     Room* schoolEntrance = new Room("School", "You arrive at school.");
     addRoom(schoolEntrance, rooms);
-    Room* compSciRoom = new Room("1-20", "Mr. Galbraith is in his room.");
+    Room* compSciRoom = new Room("1-20", "This is where you will turn in your code.");
     addRoom(compSciRoom, rooms);    
     Room* weswigLab = new Room("Weswig Lab", "The lab is closed, try another location?");
     addRoom(weswigLab, rooms);
@@ -228,7 +231,7 @@ void getItem(vector<Item*>* &inventory, char* secondWord, Room* &currentRoom) {
     Item* item;
     for(it = itemsInRoom.begin(); it < itemsInRoom.end(); it++) {
         char* original = (*it) -> getName();
-        char* newName = new char[20];
+        char newName[20];
         int i = 0;
         for (; i < strlen(original); i++) {
             newName[i] = toupper(original[i]);
@@ -256,7 +259,7 @@ void dropItem(vector<Item*>* &inventory, char* secondWord, Room* &currentRoom) {
     Item* item;
     for(it = inventory -> begin(); it < inventory -> end(); it++) {
         char* original = (*it) -> getName();
-        char* newName = new char[20];
+        char newName[20];
         int i = 0;
         for (; i < strlen(original); i++) {
             newName[i] = toupper(original[i]);
@@ -277,11 +280,12 @@ void dropItem(vector<Item*>* &inventory, char* secondWord, Room* &currentRoom) {
     }
 }
 
-Room* goRoom(Room* currentRoom, char* secondWord, vector<Item*> *inventory, Room* library) {
+Room* goRoom(Room* currentRoom, char* secondWord, vector<Item*> *inventory, Room* library, int &numOfMoves) {
     Room* temp;
     temp = currentRoom -> getNewRoom(secondWord);
     if (temp != NULL) {
         currentRoom = temp; 
+        numOfMoves++;
     } 
     printRoomDescription(currentRoom);
     if(strcmp(currentRoom -> getName(), "Bedroom") == 0) {
@@ -308,12 +312,14 @@ Room* goRoom(Room* currentRoom, char* secondWord, vector<Item*> *inventory, Room
                 cout << "you are now able to write your code." << endl;
                 library -> addItem("WorkingProgram");
                 currentRoom -> printItems();
+                break;
             }
             else if (strcmp((*it)->getName(), "BadAdvice") == 0 || strcmp((*it)->getName(), "JavaAdvice") == 0) {
                 cout << "Using the advice of your sketchy helpers ";
                 cout << "you write a questionable piece of code." << endl;
                 library -> addItem("BuggyProgram");
                 currentRoom -> printItems();
+                break;
             }
             else {
                 cout << "This would be a good place to write your code ";
@@ -328,4 +334,15 @@ void printRoomDescription(Room* currentRoom) {
     cout << currentRoom -> getDescription() << endl;
     currentRoom -> printItems();
     currentRoom -> printExits();
+}
+
+void releaseMemory(vector<Item*>* inventory, vector<Room*>* rooms) {
+    for (auto it = inventory -> begin(); it < inventory -> end(); it++) {
+        delete (*it);
+    }
+    for (auto it = rooms -> begin(); it < rooms -> end(); it++) {
+        delete (*it);
+    }
+    delete inventory;
+    delete rooms;
 }

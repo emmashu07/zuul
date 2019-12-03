@@ -8,7 +8,7 @@ Item::Item(char* name) {
 }
 
 Item::~Item() {
-    delete []name;
+    //delete []name;
 }
 
 char* Item::getName() {

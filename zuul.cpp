@@ -1,3 +1,8 @@
+/*
+ * Emma Shu: 12/2/2019: Zuul is an text based adventure game where you
+ * try to turn in a C++ project on time.
+ */
+
 #include <iostream>
 #include <cctype>
 #include <vector>
@@ -53,7 +58,7 @@ int main() {
         else if (strcmp(input, "QUIT") == 0) {
             running = false;
         }
-        else {
+        else { //Mini parser to find execute commands.
             bool first = true;
             int pos = 0;
             for (int i = 0; i < strlen(input); i++) {
@@ -108,11 +113,11 @@ int main() {
             running = false;
         }
     }
-    releaseMemory(inventory, rooms);
+    releaseMemory(inventory, rooms); //Calls to destructors and fixes memory leaks.
  	return 0;
 }
 
-vector<Room*>* createRooms(vector<Room*> *rooms) {
+vector<Room*>* createRooms(vector<Room*> *rooms) { //Creates all the rooms and items inside of the rooms.
     Room* yourRoom = new Room("Your Room", "You are in your room.");
     addRoom(yourRoom, rooms);
     Room* office = new Room("Office", "Your mom in the den.");
@@ -229,7 +234,7 @@ void getItem(vector<Item*>* &inventory, char* secondWord, Room* &currentRoom) {
     vector<Item*>::iterator it;
     bool inRoom = false;
     Item* item;
-    for(it = itemsInRoom.begin(); it < itemsInRoom.end(); it++) {
+    for(it = itemsInRoom.begin(); it < itemsInRoom.end(); it++) { //Searches for the item within the room.
         char* original = (*it) -> getName();
         char newName[20];
         int i = 0;
@@ -237,7 +242,7 @@ void getItem(vector<Item*>* &inventory, char* secondWord, Room* &currentRoom) {
             newName[i] = toupper(original[i]);
         }
         newName[i] = '\0'; 
-        if(strcmp(secondWord, newName) == 0) {
+        if(strcmp(secondWord, newName) == 0) { // Found the item in the room.
             inRoom = true;
             item = (*it);
             break;
@@ -288,6 +293,7 @@ Room* goRoom(Room* currentRoom, char* secondWord, vector<Item*> *inventory, Room
         numOfMoves++;
     } 
     printRoomDescription(currentRoom);
+    // Some extra directions for a couple specific rooms.
     if(strcmp(currentRoom -> getName(), "Bedroom") == 0) {
        cout << "Your dad tells you he can try to help you, but he warns ";
        cout << "you that he only REALLY knows how to code in Java." << endl;
